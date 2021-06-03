@@ -1,0 +1,431 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		FC30B9D72616E8910041F821 /* BUAdSDK.bundle in Sources */ = {isa = PBXBuildFile; fileRef = FC30B9D32616E88E0041F821 /* BUAdSDK.bundle */; };
+		FC30B9DA2616EAAD0041F821 /* BUAdSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9D02616E88E0041F821 /* BUAdSDK.framework */; };
+		FC30B9DB2616EAAD0041F821 /* BUCNAuxiliary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9D12616E88E0041F821 /* BUCNAuxiliary.framework */; };
+		FC30B9DC2616EAAD0041F821 /* BUFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9D22616E88E0041F821 /* BUFoundation.framework */; };
+		FC30B9DE2616EAB60041F821 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9DD2616EAB60041F821 /* StoreKit.framework */; };
+		FC30B9E02616EABD0041F821 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9DF2616EABD0041F821 /* MobileCoreServices.framework */; };
+		FC30B9E22616EAC40041F821 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9E12616EAC40041F821 /* WebKit.framework */; };
+		FC30B9E42616EACF0041F821 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9E32616EACF0041F821 /* MediaPlayer.framework */; };
+		FC30B9E62616EAD90041F821 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9E52616EAD90041F821 /* CoreMedia.framework */; };
+		FC30B9E82616EAE10041F821 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9E72616EAE10041F821 /* CoreLocation.framework */; };
+		FC30B9EA2616EAFA0041F821 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9E92616EAFA0041F821 /* AVFoundation.framework */; };
+		FC30B9EC2616EB030041F821 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9EB2616EB030041F821 /* CoreTelephony.framework */; };
+		FC30B9EE2616EB0D0041F821 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9ED2616EB0D0041F821 /* SystemConfiguration.framework */; };
+		FC30B9F02616EB150041F821 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9EF2616EB150041F821 /* AdSupport.framework */; };
+		FC30B9F22616EB1C0041F821 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9F12616EB1C0041F821 /* CoreMotion.framework */; };
+		FC30B9F42616EB240041F821 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9F32616EB240041F821 /* Accelerate.framework */; };
+		FC30B9F62616EB2D0041F821 /* libresolv.9.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9F52616EB2D0041F821 /* libresolv.9.tbd */; };
+		FC30B9F92616EB3B0041F821 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9F82616EB3B0041F821 /* libc++.tbd */; };
+		FC30B9FC2616EB400041F821 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9FB2616EB400041F821 /* libz.tbd */; };
+		FC30B9FF2616EB4C0041F821 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30B9FE2616EB4C0041F821 /* libsqlite3.tbd */; };
+		FC30BA022616EB570041F821 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30BA012616EB570041F821 /* libiconv.tbd */; };
+		FC30BA052616EB690041F821 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30BA042616EB690041F821 /* Security.framework */; };
+		FC30BA072616EB6F0041F821 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30BA062616EB6F0041F821 /* JavaScriptCore.framework */; };
+		FC30BA092616EB7F0041F821 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC30BA082616EB7E0041F821 /* ImageIO.framework */; };
+		FCB97F7A2616E610000179C1 /* HNByteDanceUnion.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB97F792616E610000179C1 /* HNByteDanceUnion.m */; };
+		FCB97F7B2616E610000179C1 /* HNByteDanceUnion.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = FCB97F782616E610000179C1 /* HNByteDanceUnion.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FCB97F732616E610000179C1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				FCB97F7B2616E610000179C1 /* HNByteDanceUnion.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		FC30B9D02616E88E0041F821 /* BUAdSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = BUAdSDK.framework; sourceTree = "<group>"; };
+		FC30B9D12616E88E0041F821 /* BUCNAuxiliary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = BUCNAuxiliary.framework; sourceTree = "<group>"; };
+		FC30B9D22616E88E0041F821 /* BUFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = BUFoundation.framework; sourceTree = "<group>"; };
+		FC30B9D32616E88E0041F821 /* BUAdSDK.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = BUAdSDK.bundle; sourceTree = "<group>"; };
+		FC30B9DD2616EAB60041F821 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/iOSSupport/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
+		FC30B9DF2616EABD0041F821 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/iOSSupport/System/Library/Frameworks/MobileCoreServices.framework; sourceTree = DEVELOPER_DIR; };
+		FC30B9E12616EAC40041F821 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/iOSSupport/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
+		FC30B9E32616EACF0041F821 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/iOSSupport/System/Library/Frameworks/MediaPlayer.framework; sourceTree = DEVELOPER_DIR; };
+		FC30B9E52616EAD90041F821 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreMedia.framework; sourceTree = DEVELOPER_DIR; };
+		FC30B9E72616EAE10041F821 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreLocation.framework; sourceTree = DEVELOPER_DIR; };
+		FC30B9E92616EAFA0041F821 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/AVFoundation.framework; sourceTree = DEVELOPER_DIR; };
+		FC30B9EB2616EB030041F821 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
+		FC30B9ED2616EB0D0041F821 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
+		FC30B9EF2616EB150041F821 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/AdSupport.framework; sourceTree = DEVELOPER_DIR; };
+		FC30B9F12616EB1C0041F821 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreMotion.framework; sourceTree = DEVELOPER_DIR; };
+		FC30B9F32616EB240041F821 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Accelerate.framework; sourceTree = DEVELOPER_DIR; };
+		FC30B9F52616EB2D0041F821 /* libresolv.9.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.9.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/lib/libresolv.9.tbd; sourceTree = DEVELOPER_DIR; };
+		FC30B9F82616EB3B0041F821 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/lib/libc++.tbd"; sourceTree = DEVELOPER_DIR; };
+		FC30B9FB2616EB400041F821 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
+		FC30B9FE2616EB4C0041F821 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/lib/libsqlite3.tbd; sourceTree = DEVELOPER_DIR; };
+		FC30BA012616EB570041F821 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/lib/libiconv.tbd; sourceTree = DEVELOPER_DIR; };
+		FC30BA042616EB690041F821 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
+		FC30BA062616EB6F0041F821 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/iOSSupport/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
+		FC30BA082616EB7E0041F821 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/ImageIO.framework; sourceTree = DEVELOPER_DIR; };
+		FCB97F752616E610000179C1 /* libHNByteDanceUnion.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libHNByteDanceUnion.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		FCB97F782616E610000179C1 /* HNByteDanceUnion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HNByteDanceUnion.h; sourceTree = "<group>"; };
+		FCB97F792616E610000179C1 /* HNByteDanceUnion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HNByteDanceUnion.m; sourceTree = "<group>"; };
+		FCB97F822616E62C000179C1 /* UZEngine */ = {isa = PBXFileReference; lastKnownFileType = folder; path = UZEngine; sourceTree = "<group>"; };
+		FCB97F852616E749000179C1 /* BUAdSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BUAdSDK.framework; path = HNByteDanceUnion/Pangle/BUAdSDK.framework; sourceTree = "<group>"; };
+		FCB97F862616E749000179C1 /* BUFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BUFoundation.framework; path = HNByteDanceUnion/Pangle/BUFoundation.framework; sourceTree = "<group>"; };
+		FCB97F872616E749000179C1 /* BUCNAuxiliary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BUCNAuxiliary.framework; path = HNByteDanceUnion/Pangle/BUCNAuxiliary.framework; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FCB97F722616E610000179C1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC30BA092616EB7F0041F821 /* ImageIO.framework in Frameworks */,
+				FC30BA072616EB6F0041F821 /* JavaScriptCore.framework in Frameworks */,
+				FC30BA052616EB690041F821 /* Security.framework in Frameworks */,
+				FC30BA022616EB570041F821 /* libiconv.tbd in Frameworks */,
+				FC30B9FF2616EB4C0041F821 /* libsqlite3.tbd in Frameworks */,
+				FC30B9FC2616EB400041F821 /* libz.tbd in Frameworks */,
+				FC30B9F92616EB3B0041F821 /* libc++.tbd in Frameworks */,
+				FC30B9F62616EB2D0041F821 /* libresolv.9.tbd in Frameworks */,
+				FC30B9F42616EB240041F821 /* Accelerate.framework in Frameworks */,
+				FC30B9F22616EB1C0041F821 /* CoreMotion.framework in Frameworks */,
+				FC30B9F02616EB150041F821 /* AdSupport.framework in Frameworks */,
+				FC30B9EE2616EB0D0041F821 /* SystemConfiguration.framework in Frameworks */,
+				FC30B9EC2616EB030041F821 /* CoreTelephony.framework in Frameworks */,
+				FC30B9EA2616EAFA0041F821 /* AVFoundation.framework in Frameworks */,
+				FC30B9E82616EAE10041F821 /* CoreLocation.framework in Frameworks */,
+				FC30B9E62616EAD90041F821 /* CoreMedia.framework in Frameworks */,
+				FC30B9E42616EACF0041F821 /* MediaPlayer.framework in Frameworks */,
+				FC30B9E22616EAC40041F821 /* WebKit.framework in Frameworks */,
+				FC30B9E02616EABD0041F821 /* MobileCoreServices.framework in Frameworks */,
+				FC30B9DE2616EAB60041F821 /* StoreKit.framework in Frameworks */,
+				FC30B9DA2616EAAD0041F821 /* BUAdSDK.framework in Frameworks */,
+				FC30B9DB2616EAAD0041F821 /* BUCNAuxiliary.framework in Frameworks */,
+				FC30B9DC2616EAAD0041F821 /* BUFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FC30B9CF2616E88E0041F821 /* Pangle */ = {
+			isa = PBXGroup;
+			children = (
+				FC30B9D02616E88E0041F821 /* BUAdSDK.framework */,
+				FC30B9D12616E88E0041F821 /* BUCNAuxiliary.framework */,
+				FC30B9D22616E88E0041F821 /* BUFoundation.framework */,
+				FC30B9D32616E88E0041F821 /* BUAdSDK.bundle */,
+			);
+			path = Pangle;
+			sourceTree = "<group>";
+		};
+		FCB97F6C2616E610000179C1 = {
+			isa = PBXGroup;
+			children = (
+				FCB97F772616E610000179C1 /* HNByteDanceUnion */,
+				FCB97F762616E610000179C1 /* Products */,
+				FCB97F842616E749000179C1 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		FCB97F762616E610000179C1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FCB97F752616E610000179C1 /* libHNByteDanceUnion.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FCB97F772616E610000179C1 /* HNByteDanceUnion */ = {
+			isa = PBXGroup;
+			children = (
+				FC30B9CF2616E88E0041F821 /* Pangle */,
+				FCB97F822616E62C000179C1 /* UZEngine */,
+				FCB97F782616E610000179C1 /* HNByteDanceUnion.h */,
+				FCB97F792616E610000179C1 /* HNByteDanceUnion.m */,
+			);
+			path = HNByteDanceUnion;
+			sourceTree = "<group>";
+		};
+		FCB97F842616E749000179C1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FC30BA082616EB7E0041F821 /* ImageIO.framework */,
+				FC30BA062616EB6F0041F821 /* JavaScriptCore.framework */,
+				FC30BA042616EB690041F821 /* Security.framework */,
+				FC30BA012616EB570041F821 /* libiconv.tbd */,
+				FC30B9FE2616EB4C0041F821 /* libsqlite3.tbd */,
+				FC30B9FB2616EB400041F821 /* libz.tbd */,
+				FC30B9F82616EB3B0041F821 /* libc++.tbd */,
+				FC30B9F52616EB2D0041F821 /* libresolv.9.tbd */,
+				FC30B9F32616EB240041F821 /* Accelerate.framework */,
+				FC30B9F12616EB1C0041F821 /* CoreMotion.framework */,
+				FC30B9EF2616EB150041F821 /* AdSupport.framework */,
+				FC30B9ED2616EB0D0041F821 /* SystemConfiguration.framework */,
+				FC30B9EB2616EB030041F821 /* CoreTelephony.framework */,
+				FC30B9E92616EAFA0041F821 /* AVFoundation.framework */,
+				FC30B9E72616EAE10041F821 /* CoreLocation.framework */,
+				FC30B9E52616EAD90041F821 /* CoreMedia.framework */,
+				FC30B9E32616EACF0041F821 /* MediaPlayer.framework */,
+				FC30B9E12616EAC40041F821 /* WebKit.framework */,
+				FC30B9DF2616EABD0041F821 /* MobileCoreServices.framework */,
+				FC30B9DD2616EAB60041F821 /* StoreKit.framework */,
+				FCB97F852616E749000179C1 /* BUAdSDK.framework */,
+				FCB97F872616E749000179C1 /* BUCNAuxiliary.framework */,
+				FCB97F862616E749000179C1 /* BUFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FCB97F742616E610000179C1 /* HNByteDanceUnion */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FCB97F7E2616E610000179C1 /* Build configuration list for PBXNativeTarget "HNByteDanceUnion" */;
+			buildPhases = (
+				FCB97F712616E610000179C1 /* Sources */,
+				FCB97F722616E610000179C1 /* Frameworks */,
+				FCB97F732616E610000179C1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HNByteDanceUnion;
+			productName = HNByteDanceUnion;
+			productReference = FCB97F752616E610000179C1 /* libHNByteDanceUnion.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FCB97F6D2616E610000179C1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1240;
+				TargetAttributes = {
+					FCB97F742616E610000179C1 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+				};
+			};
+			buildConfigurationList = FCB97F702616E610000179C1 /* Build configuration list for PBXProject "HNByteDanceUnion" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"zh-Hans",
+			);
+			mainGroup = FCB97F6C2616E610000179C1;
+			productRefGroup = FCB97F762616E610000179C1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FCB97F742616E610000179C1 /* HNByteDanceUnion */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FCB97F712616E610000179C1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FCB97F7A2616E610000179C1 /* HNByteDanceUnion.m in Sources */,
+				FC30B9D72616E8910041F821 /* BUAdSDK.bundle in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		FCB97F7C2616E610000179C1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		FCB97F7D2616E610000179C1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		FCB97F7F2616E610000179C1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = XTJ6VFFJEF;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/HNByteDanceUnion/Pangle",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-l\"c++\"",
+					"-l\"c++abi\"",
+					"l\"sqlite3\",-l\"z\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FCB97F802616E610000179C1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = XTJ6VFFJEF;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/HNByteDanceUnion/Pangle",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-l\"c++\"",
+					"-l\"c++abi\"",
+					"l\"sqlite3\",-l\"z\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FCB97F702616E610000179C1 /* Build configuration list for PBXProject "HNByteDanceUnion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FCB97F7C2616E610000179C1 /* Debug */,
+				FCB97F7D2616E610000179C1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FCB97F7E2616E610000179C1 /* Build configuration list for PBXNativeTarget "HNByteDanceUnion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FCB97F7F2616E610000179C1 /* Debug */,
+				FCB97F802616E610000179C1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FCB97F6D2616E610000179C1 /* Project object */;
+}
