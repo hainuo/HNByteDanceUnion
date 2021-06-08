@@ -73,7 +73,7 @@ JS_METHOD_SYNC(init:(UZModuleMethodContext *)context){
 	//shezhi keyi
 	return @{@"code":@1,@"msg":@"初始化成功！",@"version":[BUAdSDKManager SDKVersion]};
 }
-#pragma mark - Splash
+#pragma mark - SplashAd 开屏广告展示
 JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 	NSDictionary *params = context.param;
 	NSString *adId  = [params stringValueForKey:@"adId" defaultValue:nil];
@@ -95,7 +95,9 @@ JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 
 	self.startTime = CACurrentMediaTime();
 	[self.splashAdView loadAdData];
-	[self addSubview:self.splashAdView fixedOn:fixedOn fixed:fixed];
+    UIViewController *parentVC = [UIApplication sharedApplication].windows[0].rootViewController;
+	[parentVC.view addSubview:self.splashAdView];
+    
 //    return @{@"code":@1,@"msg":@"成功!"};
 	__weak typeof(self) _self = self;
 //    __weak typeof(context) _context=context;
