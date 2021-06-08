@@ -40,6 +40,31 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:@"loadSplashAdObserver"];
 }
 
+- (UIWindow *)getKeyWindow
+{
+    if (@available(iOS 13.0, *))
+    {
+        for (UIWindowScene* windowScene in [UIApplication sharedApplication].connectedScenes) {
+            if (windowScene.activationState == UISceneActivationStateForegroundActive)
+            {
+                for (UIWindow *window in windowScene.windows)
+                {
+                    if (window.isKeyWindow)
+                    {
+                        return window;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        return [UIApplication sharedApplication].keyWindow;
+    }
+    return nil;
+}
+
 #pragma mark - BytedanceUnion init
 
 JS_METHOD_SYNC(init:(UZModuleMethodContext *)context){
@@ -83,8 +108,8 @@ JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 	NSString *width = [ret stringValueForKey:@"width" defaultValue:nil];
 	NSString *height = [ret stringValueForKey:@"height" defaultValue:nil];
 
-	NSString *fixedOn = [params stringValueForKey:@"fixedOn" defaultValue:nil];
-	bool fixed = [params boolValueForKey:@"fixed" defaultValue:NO];
+//	NSString *fixedOn = [params stringValueForKey:@"fixedOn" defaultValue:nil];
+//	bool fixed = [params boolValueForKey:@"fixed" defaultValue:NO];
 
 	CGRect frame = CGRectMake([x floatValue], [y floatValue], [width floatValue], [height floatValue]);
 	self.splashAdView = [[BUSplashAdView alloc] initWithSlotID:adId frame:frame];
@@ -95,7 +120,7 @@ JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 
 	self.startTime = CACurrentMediaTime();
 	[self.splashAdView loadAdData];
-    UIViewController *parentVC = [UIApplication sharedApplication].windows[0].rootViewController;
+    UIViewController *parentVC = [self getKeyWindow].rootViewController;
 	[parentVC.view addSubview:self.splashAdView];
     
 //    return @{@"code":@1,@"msg":@"成功!"};
@@ -138,7 +163,7 @@ JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 	NSLog(@"splashAD has loaded");
 	if (splashAd.zoomOutView) {
 		NSLog(@"splashAD zoomoutview has loaded");
-		UIViewController *parentVC = [UIApplication sharedApplication].windows[0].rootViewController;
+		UIViewController *parentVC = [self getKeyWindow].rootViewController;
 		[parentVC.view addSubview:splashAd.zoomOutView];
 		[parentVC.view bringSubviewToFront:splashAd];
 		//Add this view to your container
@@ -230,5 +255,9 @@ JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 	CFTimeInterval endTime = CACurrentMediaTime();
 	NSLog(@"SplashAdView In AppDelegate (%@) total run time: %gs, extraMsg:%@", NSStringFromSelector(sel), endTime - self.startTime, msg);
 }
+
+#pragma mark banner广告
+
+#pragma mark banner delegate
 
 @end
