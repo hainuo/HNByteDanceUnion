@@ -26,7 +26,7 @@ static void *nl_sqlite_adId_key = &nl_sqlite_adId_key;
 }
 @end
 
-@interface HNByteDanceUnion ()<BUSplashAdDelegate,BUSplashZoomOutViewDelegate,BUNativeExpressBannerViewDelegate>
+@interface HNByteDanceUnion ()<BUSplashAdDelegate,BUSplashZoomOutViewDelegate,BUNativeExpressBannerViewDelegate,BUNativeExpressFullscreenVideoAdDelegate>
 @property (nonatomic, strong) BUSplashAdView *splashAdView;
 @property (nonatomic, assign) CFTimeInterval startTime;
 @property (nonatomic, strong) NSObject *splashAdObserver;
@@ -35,6 +35,11 @@ static void *nl_sqlite_adId_key = &nl_sqlite_adId_key;
 
 @property (nonatomic, strong) NSObject *bannerAdObserver;
 @property (nonatomic,strong) BUNativeExpressBannerView *bannerAdView;
+
+//quanping
+@property (nonatomic, strong) NSObject *quanpingAdObserver;
+@property (nonatomic, strong) BUNativeExpressFullscreenVideoAd *fullscreenAd;
+
 @end
 
 
@@ -60,7 +65,13 @@ static void *nl_sqlite_adId_key = &nl_sqlite_adId_key;
 - (void)dispose {
 	// 方法在模块销毁之前被调用
 	NSLog(@"HNBytedanceUnion  被销毁了");
-	[[NSNotificationCenter defaultCenter] removeObserver:@"loadSplashAdObserver"];
+    [self removeQuanpingAdNotification];
+    _fullscreenAd = nil;
+    [self removeBannerAdNotification];
+    _bannerAdView = nil;
+    [self removeSplashADNotification];
+    _splashAdView = nil;
+    
 }
 
 - (UIWindow *)getKeyWindow
@@ -90,36 +101,37 @@ static void *nl_sqlite_adId_key = &nl_sqlite_adId_key;
 
 #pragma mark - BytedanceUnion init
 
-JS_METHOD_SYNC(init:(UZModuleMethodContext *)context){
+JS_METHOD(init:(UZModuleMethodContext *)context){
 
 	NSDictionary *params = context.param;
 	NSString *appId  = [params stringValueForKey:@"appId" defaultValue:nil];
 	if(!appId) {
-		return @{@"code":@0,@"msg":@"appId有误！"};
+        [context callbackWithRet:@{@"code":@0,@"msg":@"广告appId有误！"} err:nil delete:YES];
+        return ;
 	}
-	[BUAdSDKManager setLoglevel:BUAdSDKLogLevelDebug];
-	NSInteger territory = [[NSUserDefaults standardUserDefaults]integerForKey:@"territory"];
-
-	BOOL isNoCN = (territory>0&&territory!=BUAdSDKTerritory_CN);
-	///optional
-	///CN china, NO_CN is not china
-	///you must set Territory first,  if you need to set them
-	[BUAdSDKManager setTerritory:isNoCN?BUAdSDKTerritory_NO_CN:BUAdSDKTerritory_CN];
-	//optional
-	//GDPR 0 close privacy protection, 1 open privacy protection
-	[BUAdSDKManager setGDPR:0];
-	//optional
-	//Coppa 0 adult, 1 child
-	[BUAdSDKManager setCoppa:0];
-
-	// Whether to open log. default is none.
-	[BUAdSDKManager setLoglevel:BUAdSDKLogLevelDebug];
-//    [BUAdSDKManager setDisableSKAdNetwork:YES];
-	[BUAdSDKManager setAppID:appId];
-	[BUAdSDKManager setCustomIDFA:@"12345678-1234-1234-1234-123456789012"];
-	[BUAdSDKManager setIsPaidApp:NO];
-	//shezhi keyi
-	return @{@"code":@1,@"msg":@"初始化成功！",@"version":[BUAdSDKManager SDKVersion]};
+    NSInteger territory = [[NSUserDefaults standardUserDefaults]integerForKey:@"territory"];
+    BOOL isNoCN = (territory>0&&territory!=BUAdSDKTerritory_CN);
+    
+    BUAdSDKConfiguration *configuration = [BUAdSDKConfiguration configuration];
+    configuration.territory = isNoCN?BUAdSDKTerritory_NO_CN:BUAdSDKTerritory_CN;
+    configuration.GDPR = @(0);
+    configuration.coppa = @(0);
+    configuration.CCPA = @(1);
+    configuration.appID = appId;
+//    configuration.logLevel = BUAdSDKLogLevelDebug;
+    [BUAdSDKManager startWithSyncCompletionHandler:^(BOOL success, NSError *error) {
+        
+            if (success) {
+                //shezhi keyi
+                [context callbackWithRet:@{@"code":@1,@"msg":@"初始化成功！",@"version":[BUAdSDKManager SDKVersion]} err:nil delete:NO];
+                 ;
+            }else{
+                //shezhi bukeyi
+                
+                [context callbackWithRet:@{@"code":@0,@"msg":@"初始化失败！",@"version":[BUAdSDKManager SDKVersion]} err:nil delete:NO];
+            }
+    }];
+	
 }
 #pragma mark - SplashAd 开屏广告展示
 JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
@@ -293,14 +305,16 @@ JS_METHOD(addBannerAd:(UZModuleMethodContext *)context){
 	bool fixed = [params boolValueForKey:@"fixed" defaultValue:NO];
 	NSString *fixedOn = [params stringValueForKey:@"fixedOn" defaultValue:nil];
 
-    int refreshInterval = [params intValueForKey:@"refreshInterval" defaultValue:30];
-    if(refreshInterval>=30 && refreshInterval <=120){
-        self.bannerAdView = [[BUNativeExpressBannerView alloc] initWithSlotID:adId rootViewController:[self getKeyWindow].rootViewController adSize:CGSizeMake(width, height) interval:refreshInterval];
-    }else{
-        self.bannerAdView = [[BUNativeExpressBannerView alloc] initWithSlotID:adId rootViewController:[self getKeyWindow].rootViewController adSize:CGSizeMake(width, height)];
-    }
-    
-    
+	int refreshInterval = [params intValueForKey:@"refreshInterval" defaultValue:30];
+	if(refreshInterval>=30 && refreshInterval <=120) {
+		self.bannerAdView = [[BUNativeExpressBannerView alloc] initWithSlotID:adId rootViewController:[self getKeyWindow].rootViewController adSize:CGSizeMake(width, height) interval:refreshInterval];
+	}else{
+		self.bannerAdView = [[BUNativeExpressBannerView alloc] initWithSlotID:adId rootViewController:[self getKeyWindow].rootViewController adSize:CGSizeMake(width, height)];
+	}
+	if(self.bannerAdView.superview) {
+		[self.bannerAdView removeFromSuperview];
+	}
+
 	self.bannerAdView.frame = CGRectMake(x,y,width,height);
 	self.bannerAdView.adId = adId;
 	self.bannerAdView.delegate = self;
@@ -319,13 +333,13 @@ JS_METHOD(addBannerAd:(UZModuleMethodContext *)context){
 		                                 if([placeId isEqualToString:adId]) {
 							 NSString *bannerAdType = [note.object stringValueForKey:@"bannerAdType" defaultValue:nil];
 							 NSString *eventType = [note.object stringValueForKey:@"eventType" defaultValue:nil];
-                                             
-                                             NSLog(@" bannerAdType %@ eventType %@",bannerAdType,eventType);
-                                             
+
+							 NSLog(@" bannerAdType %@ eventType %@",bannerAdType,eventType);
+
 							 if([bannerAdType isEqualToString:@"loadBannerAd"] && [eventType isEqualToString:@"adRendered"]) {
 								 //接收到信号 渲染成功的时候方才加载view
 								 [self addSubview:self->_bannerAdView fixedOn:fixedOn fixed:fixed];
-                                 [[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"addViewToMainView",@"bannerAdType":@"loadBannerAd",@"adId":adId,@"msg":@"广告加入界面成功",@"height":@(self->_bannerAdView.bounds.size.height),@"width":@(self->_bannerAdView.bounds.size.width),@"code":@1}];
+								 [[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"addViewToMainView",@"bannerAdType":@"loadBannerAd",@"adId":adId,@"msg":@"广告加入界面成功",@"height":@(self->_bannerAdView.bounds.size.height),@"width":@(self->_bannerAdView.bounds.size.width),@"code":@1}];
 							 }
 
 							 [context callbackWithRet:note.object err:nil delete:NO];
@@ -335,8 +349,8 @@ JS_METHOD(addBannerAd:(UZModuleMethodContext *)context){
 	[context callbackWithRet:@{@"code":@1,@"bannerAdType":@"loadBannerAd",@"eventType":@"doLoad",@"msg":@"广告加载命令执行成功"} err:nil delete:NO];
 }
 JS_METHOD_SYNC(closeBannerAd:(UZModuleMethodContext *)context){
-    [self removeBannerAdView];
-    return @{@"code":@1,@"bannerAdType":@"closeBannerAd",@"eventType":@"doClose",@"msg":@"广告关闭命令执行成功"};
+	[self removeBannerAdView];
+	return @{@"code":@1,@"bannerAdType":@"closeBannerAd",@"eventType":@"doClose",@"msg":@"广告关闭命令执行成功"};
 }
 -(void) removeBannerAdView {
 	// 同步到主线程
@@ -351,10 +365,10 @@ JS_METHOD_SYNC(closeBannerAd:(UZModuleMethodContext *)context){
 
 -(void) removeBannerAdNotification {
 	//同时移除监听
-	if(self.splashAdObserver) {
+	if(self.bannerAdObserver) {
 		NSLog(@"移除通知监听");
-		[[NSNotificationCenter defaultCenter] removeObserver:self.splashAdObserver name:@"loadBannerAdObserver" object:nil];
-		self.splashAdObserver = nil;
+		[[NSNotificationCenter defaultCenter] removeObserver:self.bannerAdObserver name:@"loadBannerAdObserver" object:nil];
+		self.bannerAdObserver = nil;
 	}
 //[[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"adLoaded",@"bannerAdType":@"loadBannerAd",@"msg":@"广告加载成功",@"code":@1}];
 }
@@ -417,13 +431,13 @@ JS_METHOD_SYNC(closeBannerAd:(UZModuleMethodContext *)context){
    @param filterwords : the array of reasons for dislike.
  */
 - (void)nativeExpressBannerAdView:(BUNativeExpressBannerView *)bannerAdView dislikeWithReason:(NSArray<BUDislikeWords *> *)filterwords {
-    NSMutableArray<NSDictionary *> *words = @[].mutableCopy;
-    if(filterwords.count>0){
-        for (BUDislikeWords *filterword in filterwords) {
-            [words addObject:@{@"name":filterword.name,@"dislikeId":filterword.dislikeID,@"isSelected":@(filterword.isSelected)}];
-        }
-    }
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"adDislikCliecked",@"bannerAdType":@"showBannerAd",@"adId":bannerAdView.adId,@"msg":@"用户点击了dislike按钮",@"words":words,@"code":@1}];
+	NSMutableArray<NSDictionary *> *words = @[].mutableCopy;
+	if(filterwords.count>0) {
+		for (BUDislikeWords *filterword in filterwords) {
+			[words addObject:@{@"name":filterword.name,@"dislikeId":filterword.dislikeID,@"isSelected":@(filterword.isSelected)}];
+		}
+	}
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"adDislikCliecked",@"bannerAdType":@"showBannerAd",@"adId":bannerAdView.adId,@"msg":@"用户点击了dislike按钮",@"words":words,@"code":@1}];
 }
 
 /**
@@ -451,11 +465,175 @@ JS_METHOD_SYNC(closeBannerAd:(UZModuleMethodContext *)context){
    @param bannerAdView : Express Banner Ad view container
  */
 - (void)nativeExpressBannerAdViewDidRemoved:(BUNativeExpressBannerView *)bannerAdView {
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"AdCloseOtherController",@"bannerAdType":@"showBannerAd",@"adId":bannerAdView.adId,@"msg":@"banner广告被用户主动关闭了",@"code":@1}];
-    [UIView animateWithDuration:0.25 animations:^{
-        self->_bannerAdView.alpha = 0;
-    } completion:^(BOOL finished) {
-        [self removeBannerAdView];
-    }];
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"AdCloseOtherController",@"bannerAdType":@"showBannerAd",@"adId":bannerAdView.adId,@"msg":@"banner广告被用户主动关闭了",@"code":@1}];
+	[UIView animateWithDuration:0.25 animations:^{
+	         self->_bannerAdView.alpha = 0;
+	 } completion:^(BOOL finished) {
+	         [self removeBannerAdView];
+	 }];
 }
+
+#pragma mark 全屏广告
+JS_METHOD(addQuanpingAd:(UZModuleMethodContext *)context){
+	NSDictionary *params = context.param;
+	NSString *adId  = [params stringValueForKey:@"adId" defaultValue:nil];
+
+	self.fullscreenAd = [[BUNativeExpressFullscreenVideoAd alloc] initWithSlotID:adId];
+	// 不支持中途更改代理，中途更改代理会导致接收不到广告相关回调，如若存在中途更改代理场景，需自行处理相关逻辑，确保广告相关回调正常执行。
+	self.fullscreenAd.delegate = self;
+	[self.fullscreenAd loadAdData];
+
+//    return @{@"code":@1,@"msg":@"成功!"};
+	__weak typeof(self) _self = self;
+//    __weak typeof(context) _context=context;
+	if(!self.quanpingAdObserver) {
+		self.quanpingAdObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"loadQuanpingAdObserver" object:nil queue:NSOperationQueue.mainQueue usingBlock:^(NSNotification * _Nonnull note) {
+
+		                                   NSLog(@"接收到 loadQuanpingAdObserver 通知，%@",note.object);
+		                                   __strong typeof(_self) self = _self;
+		                                   if(!self) return;
+		                                   [context callbackWithRet:note.object err:nil delete:NO];
+					   }];
+	}
+	[context callbackWithRet:@{@"code":@1,@"quanpingAdType":@"loadQuanpingAd",@"eventType":@"doLoad",@"msg":@"广告加载命令执行成功"} err:nil delete:NO];
+}
+JS_METHOD_SYNC(showQuanpingAd:(UZModuleMethodContext *)context){
+    if (self.fullscreenAd) {
+        [self.fullscreenAd showAdFromRootViewController:[self getKeyWindow].rootViewController];
+        return @{@"code":@1,@"quanpingAdType":@"showQuanpingAd",@"eventType":@"doShow",@"msg":@"全屏广告显示命令执行成功"};
+    }else{
+        return @{@"code":@0,@"quanpingAdType":@"showQuanpingAd",@"eventType":@"doShowFail",@"msg":@"没有找到全屏广告信息 "};
+    }
+   
+}
+
+-(void) removeQuanpingAdNotification {
+	//同时移除监听
+	if(self.quanpingAdObserver) {
+		NSLog(@"移除通知监听");
+		[[NSNotificationCenter defaultCenter] removeObserver:self.quanpingAdObserver name:@"loadQuanpingAdObserver" object:nil];
+		self.splashAdObserver = nil;
+	}
+    _fullscreenAd = nil;
+//[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adLoaded",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告加载成功",@"code":@1}];
+}
+#pragma mark  全屏广告delegate BUNativeExpressFullscreenVideoAdDelegate
+/**
+ This method is called when video ad material loaded successfully.
+全屏广告加载成功 ！
+ */
+- (void)nativeExpressFullscreenVideoAdDidLoad:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adLoaded",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告加载成功",@"code":@1}];
+}
+
+/**
+ This method is called when video ad materia failed to load.
+ @param error : the reason of error
+ 加载失败
+ */
+- (void)nativeExpressFullscreenVideoAd:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd didFailWithError:(NSError *_Nullable)error{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adLoadFail",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告加载失败",@"code":@0}];
+    [self removeQuanpingAdNotification];
+}
+
+/**
+ This method is called when rendering a nativeExpressAdView successed.
+ It will happen when ad is show.
+ 渲染成功
+ */
+- (void)nativeExpressFullscreenVideoAdViewRenderSuccess:(BUNativeExpressFullscreenVideoAd *)rewardedVideoAd{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adRendered",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告渲染成功",@"code":@1}];
+}
+
+/**
+ This method is called when a nativeExpressAdView failed to render.
+ @param error : the reason of error
+ 渲染失败
+ */
+- (void)nativeExpressFullscreenVideoAdViewRenderFail:(BUNativeExpressFullscreenVideoAd *)rewardedVideoAd error:(NSError *_Nullable)error{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adRenderFail",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告渲染失败",@"code":@0}];
+    [self removeQuanpingAdNotification];
+}
+
+/**
+ 视频缓存成功
+ This method is called when video cached successfully.
+ For a better user experience, it is recommended to display video ads at this time.
+ And you can call [BUNativeExpressFullscreenVideoAd showAdFromRootViewController:].
+ */
+- (void)nativeExpressFullscreenVideoAdDidDownLoadVideo:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adVideoDownloaded",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告视频加载成功，可以显示广告了",@"code":@1}];
+}
+
+/**
+ This method is called when video ad slot will be showing.
+ 广告即将显示
+ */
+- (void)nativeExpressFullscreenVideoAdWillVisible:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adWillShow",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告即将展示",@"code":@1}];
+}
+
+/**
+ This method is called when video ad slot has been shown.
+ 广告已经显示
+ */
+- (void)nativeExpressFullscreenVideoAdDidVisible:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adShowed",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告展示了",@"code":@1}];
+}
+
+/**
+ This method is called when video ad is clicked.
+ */
+- (void)nativeExpressFullscreenVideoAdDidClick:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adClicked",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告被点击了",@"code":@1}];
+}
+
+/**
+ This method is called when the user clicked skip button.
+ */
+- (void)nativeExpressFullscreenVideoAdDidClickSkip:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adSkipClicked",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告跳过被点击了",@"code":@1}];
+}
+
+/**
+ This method is called when video ad is about to close.
+ */
+- (void)nativeExpressFullscreenVideoAdWillClose:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adWillClose",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告将关闭",@"code":@1}];
+}
+
+/**
+ This method is called when video ad is closed.
+ */
+- (void)nativeExpressFullscreenVideoAdDidClose:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adClosed",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告关闭了",@"code":@1}];
+}
+
+/**
+ This method is called when video ad play completed or an error occurred.
+ @param error : the reason of error
+ */
+- (void)nativeExpressFullscreenVideoAdDidPlayFinish:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd didFailWithError:(NSError *_Nullable)error{
+    NSDictionary *errorInfo = @{};
+    if(error && error.userInfo){
+        errorInfo = error.userInfo;
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adPlayFinished",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告播放结束了",@"userInfo":errorInfo,@"code":@1}];
+}
+
+/**
+This method is used to get the type of nativeExpressFullScreenVideo ad
+ */
+- (void)nativeExpressFullscreenVideoAdCallback:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd withType:(BUNativeExpressFullScreenAdType) nativeExpressVideoAdType{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adVideoType",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告视频类型",@"videoAdType":@(nativeExpressVideoAdType),@"code":@1}];
+}
+
+/**
+ This method is called when another controller has been closed.
+ @param interactionType : open appstore in app or open the webpage or view video ad details page.
+ */
+- (void)nativeExpressFullscreenVideoAdDidCloseOtherController:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd interactionType:(BUInteractionType)interactionType{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adCloseOtherController",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告关闭其他控制器",@"interactionType":@(interactionType),@"code":@1}];
+}
+
 @end
