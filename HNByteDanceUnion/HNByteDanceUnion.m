@@ -127,8 +127,11 @@ JS_METHOD(init:(UZModuleMethodContext *)context){
                  ;
             }else{
                 //shezhi bukeyi
-                
-                [context callbackWithRet:@{@"code":@0,@"msg":@"初始化失败！",@"version":[BUAdSDKManager SDKVersion]} err:nil delete:NO];
+                NSDictionary *errorInfo  = @{};
+                if(error && error.userInfo){
+                    errorInfo = error.userInfo;
+                }
+                [context callbackWithRet:@{@"code":@0,@"msg":@"初始化失败！",@"userInfo":errorInfo,@"version":[BUAdSDKManager SDKVersion]} err:nil delete:NO];
             }
     }];
 	
