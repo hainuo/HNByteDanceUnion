@@ -65,13 +65,13 @@ static void *nl_sqlite_adId_key = &nl_sqlite_adId_key;
 - (void)dispose {
 	// 方法在模块销毁之前被调用
 	NSLog(@"HNBytedanceUnion  被销毁了");
-    [self removeQuanpingAdNotification];
-    _fullscreenAd = nil;
-    [self removeBannerAdNotification];
-    _bannerAdView = nil;
-    [self removeSplashADNotification];
-    _splashAdView = nil;
-    
+	[self removeQuanpingAdNotification];
+	_fullscreenAd = nil;
+	[self removeBannerAdNotification];
+	_bannerAdView = nil;
+	[self removeSplashADNotification];
+	_splashAdView = nil;
+
 }
 
 - (UIWindow *)getKeyWindow
@@ -106,35 +106,35 @@ JS_METHOD(init:(UZModuleMethodContext *)context){
 	NSDictionary *params = context.param;
 	NSString *appId  = [params stringValueForKey:@"appId" defaultValue:nil];
 	if(!appId) {
-        [context callbackWithRet:@{@"code":@0,@"msg":@"广告appId有误！"} err:nil delete:YES];
-        return ;
+		[context callbackWithRet:@{@"code":@0,@"msg":@"广告appId有误！"} err:nil delete:YES];
+		return;
 	}
-    NSInteger territory = [[NSUserDefaults standardUserDefaults]integerForKey:@"territory"];
-    BOOL isNoCN = (territory>0&&territory!=BUAdSDKTerritory_CN);
-    
-    BUAdSDKConfiguration *configuration = [BUAdSDKConfiguration configuration];
-    configuration.territory = isNoCN?BUAdSDKTerritory_NO_CN:BUAdSDKTerritory_CN;
-    configuration.GDPR = @(0);
-    configuration.coppa = @(0);
-    configuration.CCPA = @(1);
-    configuration.appID = appId;
+	NSInteger territory = [[NSUserDefaults standardUserDefaults]integerForKey:@"territory"];
+	BOOL isNoCN = (territory>0&&territory!=BUAdSDKTerritory_CN);
+
+	BUAdSDKConfiguration *configuration = [BUAdSDKConfiguration configuration];
+	configuration.territory = isNoCN?BUAdSDKTerritory_NO_CN:BUAdSDKTerritory_CN;
+	configuration.GDPR = @(0);
+	configuration.coppa = @(0);
+	configuration.CCPA = @(1);
+	configuration.appID = appId;
 //    configuration.logLevel = BUAdSDKLogLevelDebug;
-    [BUAdSDKManager startWithSyncCompletionHandler:^(BOOL success, NSError *error) {
-        
-            if (success) {
-                //shezhi keyi
-                [context callbackWithRet:@{@"code":@1,@"msg":@"初始化成功！",@"version":[BUAdSDKManager SDKVersion]} err:nil delete:NO];
-                 ;
-            }else{
-                //shezhi bukeyi
-                NSDictionary *errorInfo  = @{};
-                if(error && error.userInfo){
-                    errorInfo = error.userInfo;
-                }
-                [context callbackWithRet:@{@"code":@0,@"msg":@"初始化失败！",@"userInfo":errorInfo,@"version":[BUAdSDKManager SDKVersion]} err:nil delete:NO];
-            }
-    }];
-	
+	[BUAdSDKManager startWithSyncCompletionHandler:^(BOOL success, NSError *error) {
+
+	         if (success) {
+			 //shezhi keyi
+			 [context callbackWithRet:@{@"code":@1,@"msg":@"初始化成功！",@"version":[BUAdSDKManager SDKVersion]} err:nil delete:NO];
+			 ;
+		 }else{
+			 //shezhi bukeyi
+			 NSDictionary *errorInfo  = @{};
+			 if(error && error.userInfo) {
+				 errorInfo = error.userInfo;
+			 }
+			 [context callbackWithRet:@{@"code":@0,@"msg":@"初始化失败！",@"userInfo":errorInfo,@"version":[BUAdSDKManager SDKVersion]} err:nil delete:NO];
+		 }
+	 }];
+
 }
 #pragma mark - SplashAd 开屏广告展示
 JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
@@ -249,8 +249,12 @@ JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 
 - (void)splashAd:(BUSplashAdView *)splashAd didFailWithError:(NSError *)error {
 	// Display fails, completely remove 'splashAdView', avoid memory leak
+	NSDictionary *errorInfo = @{};
+	if(error && error.userInfo) {
+		errorInfo = error.userInfo;
+	}
 	[self pbu_logWithSEL:_cmd msg:@"splashAd has been removed"];
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadSplashAdObserver" object:@{@"eventType":@"adloadFail",@"splashAdType":@"loadSplashAd",@"msg":error.userInfo,@"code":@0}];
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadSplashAdObserver" object:@{@"eventType":@"adloadFail",@"splashAdType":@"loadSplashAd",@"msg":@"广告加载失败",@"userInfo":errorInfo,@"code":@0}];
 
 
 	[self removeSplashAdView];
@@ -391,7 +395,11 @@ JS_METHOD_SYNC(closeBannerAd:(UZModuleMethodContext *)context){
    @param error : the reason of error
  */
 - (void)nativeExpressBannerAdView:(BUNativeExpressBannerView *)bannerAdView didLoadFailWithError:(NSError *_Nullable)error {
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"adLoadFail",@"bannerAdType":@"loadBannerAd",@"adId":bannerAdView.adId,@"msg":@"广告加载失败",@"code":@0}];
+	NSDictionary *errorInfo = @{};
+	if(error && error.userInfo) {
+		errorInfo = error.userInfo;
+	}
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"adLoadFail",@"bannerAdType":@"loadBannerAd",@"adId":bannerAdView.adId,@"userInfo":errorInfo,@"msg":@"广告加载失败",@"code":@0}];
 
 	[self removeBannerAdView];
 }
@@ -411,7 +419,12 @@ JS_METHOD_SYNC(closeBannerAd:(UZModuleMethodContext *)context){
  */
 - (void)nativeExpressBannerAdViewRenderFail:(BUNativeExpressBannerView *)bannerAdView error:(NSError *)error {
 
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"adRenderFail",@"bannerAdType":@"loadBannerAd",@"adId":bannerAdView.adId,@"msg":@"广告渲染失败",@"code":@0}];
+	NSDictionary *errorInfo = @{};
+	if(error && error.userInfo) {
+		errorInfo = error.userInfo;
+	}
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"adRenderFail",@"bannerAdType":@"loadBannerAd",@"adId":bannerAdView.adId,@"msg":@"广告渲染失败",@"userInfo":errorInfo,@"code":@0}];
 	[self removeBannerAdView];
 }
 
@@ -476,7 +489,7 @@ JS_METHOD_SYNC(closeBannerAd:(UZModuleMethodContext *)context){
 	 }];
 }
 
-#pragma mark 全屏广告
+#pragma mark 新插屏广告
 JS_METHOD(addQuanpingAd:(UZModuleMethodContext *)context){
 	NSDictionary *params = context.param;
 	NSString *adId  = [params stringValueForKey:@"adId" defaultValue:nil];
@@ -501,13 +514,13 @@ JS_METHOD(addQuanpingAd:(UZModuleMethodContext *)context){
 	[context callbackWithRet:@{@"code":@1,@"quanpingAdType":@"loadQuanpingAd",@"eventType":@"doLoad",@"msg":@"广告加载命令执行成功"} err:nil delete:NO];
 }
 JS_METHOD_SYNC(showQuanpingAd:(UZModuleMethodContext *)context){
-    if (self.fullscreenAd) {
-        [self.fullscreenAd showAdFromRootViewController:[self getKeyWindow].rootViewController];
-        return @{@"code":@1,@"quanpingAdType":@"showQuanpingAd",@"eventType":@"doShow",@"msg":@"全屏广告显示命令执行成功"};
-    }else{
-        return @{@"code":@0,@"quanpingAdType":@"showQuanpingAd",@"eventType":@"doShowFail",@"msg":@"没有找到全屏广告信息 "};
-    }
-   
+	if (self.fullscreenAd) {
+		[self.fullscreenAd showAdFromRootViewController:[self getKeyWindow].rootViewController];
+		return @{@"code":@1,@"quanpingAdType":@"showQuanpingAd",@"eventType":@"doShow",@"msg":@"新插屏广告显示命令执行成功"};
+	}else{
+		return @{@"code":@0,@"quanpingAdType":@"showQuanpingAd",@"eventType":@"doShowFail",@"msg":@"没有找到新插屏广告信息 "};
+	}
+
 }
 
 -(void) removeQuanpingAdNotification {
@@ -517,126 +530,140 @@ JS_METHOD_SYNC(showQuanpingAd:(UZModuleMethodContext *)context){
 		[[NSNotificationCenter defaultCenter] removeObserver:self.quanpingAdObserver name:@"loadQuanpingAdObserver" object:nil];
 		self.splashAdObserver = nil;
 	}
-    _fullscreenAd = nil;
+	_fullscreenAd = nil;
 //[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adLoaded",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告加载成功",@"code":@1}];
 }
-#pragma mark  全屏广告delegate BUNativeExpressFullscreenVideoAdDelegate
+#pragma mark  新插屏广告delegate BUNativeExpressFullscreenVideoAdDelegate
 /**
- This method is called when video ad material loaded successfully.
-全屏广告加载成功 ！
+   This method is called when video ad material loaded successfully.
+   新插屏广告加载成功 ！
  */
-- (void)nativeExpressFullscreenVideoAdDidLoad:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adLoaded",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告加载成功",@"code":@1}];
+- (void)nativeExpressFullscreenVideoAdDidLoad:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adLoaded",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告加载成功",@"code":@1}];
 }
 
 /**
- This method is called when video ad materia failed to load.
- @param error : the reason of error
- 加载失败
+   This method is called when video ad materia failed to load.
+   @param error : the reason of error
+   加载失败
  */
-- (void)nativeExpressFullscreenVideoAd:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd didFailWithError:(NSError *_Nullable)error{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adLoadFail",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告加载失败",@"code":@0}];
-    [self removeQuanpingAdNotification];
+- (void)nativeExpressFullscreenVideoAd:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd didFailWithError:(NSError *_Nullable)error {
+	NSDictionary *errorInfo = @{};
+	if(error && error.userInfo) {
+		errorInfo = error.userInfo;
+	}
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adLoadFail",@"quanpingAdType":@"loadQuanpingAd",@"userInfo":errorInfo,@"msg":@"广告加载失败",@"code":@0}];
+	[self removeQuanpingAdNotification];
 }
 
 /**
- This method is called when rendering a nativeExpressAdView successed.
- It will happen when ad is show.
- 渲染成功
+   This method is called when rendering a nativeExpressAdView successed.
+   It will happen when ad is show.
+   渲染成功
  */
-- (void)nativeExpressFullscreenVideoAdViewRenderSuccess:(BUNativeExpressFullscreenVideoAd *)rewardedVideoAd{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adRendered",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告渲染成功",@"code":@1}];
+- (void)nativeExpressFullscreenVideoAdViewRenderSuccess:(BUNativeExpressFullscreenVideoAd *)rewardedVideoAd {
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adRendered",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告渲染成功",@"code":@1}];
 }
 
 /**
- This method is called when a nativeExpressAdView failed to render.
- @param error : the reason of error
- 渲染失败
+   This method is called when a nativeExpressAdView failed to render.
+   @param error : the reason of error
+   渲染失败
  */
-- (void)nativeExpressFullscreenVideoAdViewRenderFail:(BUNativeExpressFullscreenVideoAd *)rewardedVideoAd error:(NSError *_Nullable)error{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adRenderFail",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告渲染失败",@"code":@0}];
-    [self removeQuanpingAdNotification];
+- (void)nativeExpressFullscreenVideoAdViewRenderFail:(BUNativeExpressFullscreenVideoAd *)rewardedVideoAd error:(NSError *_Nullable)error {
+	NSDictionary *errorInfo = @{};
+	if(error && error.userInfo) {
+		errorInfo = error.userInfo;
+	}
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adRenderFail",@"quanpingAdType":@"loadQuanpingAd",@"userInfo":errorInfo,@"msg":@"广告渲染失败",@"code":@0}];
+	[self removeQuanpingAdNotification];
 }
 
 /**
- 视频缓存成功
- This method is called when video cached successfully.
- For a better user experience, it is recommended to display video ads at this time.
- And you can call [BUNativeExpressFullscreenVideoAd showAdFromRootViewController:].
+   视频缓存成功
+   This method is called when video cached successfully.
+   For a better user experience, it is recommended to display video ads at this time.
+   And you can call [BUNativeExpressFullscreenVideoAd showAdFromRootViewController:].
  */
-- (void)nativeExpressFullscreenVideoAdDidDownLoadVideo:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adVideoDownloaded",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告视频加载成功，可以显示广告了",@"code":@1}];
+- (void)nativeExpressFullscreenVideoAdDidDownLoadVideo:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adVideoDownloaded",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告视频加载成功，可以显示广告了",@"code":@1}];
 }
 
 /**
- This method is called when video ad slot will be showing.
- 广告即将显示
+   This method is called when video ad slot will be showing.
+   广告即将显示
  */
-- (void)nativeExpressFullscreenVideoAdWillVisible:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adWillShow",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告即将展示",@"code":@1}];
+- (void)nativeExpressFullscreenVideoAdWillVisible:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adWillShow",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告即将展示",@"code":@1}];
 }
 
 /**
- This method is called when video ad slot has been shown.
- 广告已经显示
+   This method is called when video ad slot has been shown.
+   广告已经显示
  */
-- (void)nativeExpressFullscreenVideoAdDidVisible:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adShowed",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告展示了",@"code":@1}];
+- (void)nativeExpressFullscreenVideoAdDidVisible:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adShowed",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告展示了",@"code":@1}];
 }
 
 /**
- This method is called when video ad is clicked.
+   This method is called when video ad is clicked.
  */
-- (void)nativeExpressFullscreenVideoAdDidClick:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adClicked",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告被点击了",@"code":@1}];
+- (void)nativeExpressFullscreenVideoAdDidClick:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adClicked",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告被点击了",@"code":@1}];
 }
 
 /**
- This method is called when the user clicked skip button.
+   This method is called when the user clicked skip button.
  */
-- (void)nativeExpressFullscreenVideoAdDidClickSkip:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adSkipClicked",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告跳过被点击了",@"code":@1}];
+- (void)nativeExpressFullscreenVideoAdDidClickSkip:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adSkipClicked",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告跳过被点击了",@"code":@1}];
 }
 
 /**
- This method is called when video ad is about to close.
+   This method is called when video ad is about to close.
  */
-- (void)nativeExpressFullscreenVideoAdWillClose:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adWillClose",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告将关闭",@"code":@1}];
+- (void)nativeExpressFullscreenVideoAdWillClose:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adWillClose",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告将关闭",@"code":@1}];
 }
 
 /**
- This method is called when video ad is closed.
+   This method is called when video ad is closed.
  */
-- (void)nativeExpressFullscreenVideoAdDidClose:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adClosed",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告关闭了",@"code":@1}];
+- (void)nativeExpressFullscreenVideoAdDidClose:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adClosed",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告关闭了",@"code":@1}];
 }
 
 /**
- This method is called when video ad play completed or an error occurred.
- @param error : the reason of error
+   This method is called when video ad play completed or an error occurred.
+   @param error : the reason of error
  */
-- (void)nativeExpressFullscreenVideoAdDidPlayFinish:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd didFailWithError:(NSError *_Nullable)error{
-    NSDictionary *errorInfo = @{};
-    if(error && error.userInfo){
-        errorInfo = error.userInfo;
-    }
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adPlayFinished",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告播放结束了",@"userInfo":errorInfo,@"code":@1}];
+- (void)nativeExpressFullscreenVideoAdDidPlayFinish:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd didFailWithError:(NSError *_Nullable)error {
+	NSDictionary *errorInfo = @{};
+	if(error && error.userInfo) {
+		errorInfo = error.userInfo;
+	}
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adPlayFinished",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告播放结束了",@"userInfo":errorInfo,@"code":@1}];
 }
 
 /**
-This method is used to get the type of nativeExpressFullScreenVideo ad
+   This method is used to get the type of nativeExpressFullScreenVideo ad
  */
-- (void)nativeExpressFullscreenVideoAdCallback:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd withType:(BUNativeExpressFullScreenAdType) nativeExpressVideoAdType{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adVideoType",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告视频类型",@"videoAdType":@(nativeExpressVideoAdType),@"code":@1}];
+- (void)nativeExpressFullscreenVideoAdCallback:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd withType:(BUNativeExpressFullScreenAdType) nativeExpressVideoAdType {
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adVideoType",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告视频类型",@"videoAdType":@(nativeExpressVideoAdType),@"code":@1}];
 }
 
 /**
- This method is called when another controller has been closed.
- @param interactionType : open appstore in app or open the webpage or view video ad details page.
+   This method is called when another controller has been closed.
+   @param interactionType : open appstore in app or open the webpage or view video ad details page.
  */
-- (void)nativeExpressFullscreenVideoAdDidCloseOtherController:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd interactionType:(BUInteractionType)interactionType{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adCloseOtherController",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告关闭其他控制器",@"interactionType":@(interactionType),@"code":@1}];
+- (void)nativeExpressFullscreenVideoAdDidCloseOtherController:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd interactionType:(BUInteractionType)interactionType {
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adCloseOtherController",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告关闭其他控制器",@"interactionType":@(interactionType),@"code":@1}];
 }
+#pragma mark 信息流广告
+
+
+#pragma mark 信息流广告 delegate
+
+
 
 @end
