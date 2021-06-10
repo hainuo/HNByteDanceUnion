@@ -11,11 +11,11 @@
 #import <objc/runtime.h>
 
 
-@interface BUNativeExpressBannerView (HNTMob)
+@interface BUNativeExpressBannerView (HNByteDanceUnion)
 @property (nonatomic, assign) NSString *adId;
 @end
 
-@implementation BUNativeExpressBannerView (HNTMob)
+@implementation BUNativeExpressBannerView (HNByteDanceUnion)
 static void *nl_sqlite_adId_key = &nl_sqlite_adId_key;
 - (void)setAdId:(NSString *)adId {
 	objc_setAssociatedObject(self, nl_sqlite_adId_key, adId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -26,7 +26,20 @@ static void *nl_sqlite_adId_key = &nl_sqlite_adId_key;
 }
 @end
 
-@interface HNByteDanceUnion ()<BUSplashAdDelegate,BUSplashZoomOutViewDelegate,BUNativeExpressBannerViewDelegate,BUNativeExpressFullscreenVideoAdDelegate>
+@interface BUNativeExpressAdView (HNByteDanceUnion)
+@property (nonatomic, assign) NSString *adId;
+@end
+@implementation BUNativeExpressAdView (HNByteDanceUnion)
+static void *n2_sqlite_adId_key = &n2_sqlite_adId_key;
+- (void)setAdId:(NSString *)adId {
+	objc_setAssociatedObject(self, n2_sqlite_adId_key, adId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSString *)adId {
+	return [objc_getAssociatedObject(self,n2_sqlite_adId_key) stringValue];
+}
+@end
+@interface HNByteDanceUnion ()<BUSplashAdDelegate,BUSplashZoomOutViewDelegate,BUNativeExpressBannerViewDelegate,BUNativeExpressFullscreenVideoAdDelegate,BUNativeExpressAdViewDelegate>
 @property (nonatomic, strong) BUSplashAdView *splashAdView;
 @property (nonatomic, assign) CFTimeInterval startTime;
 @property (nonatomic, strong) NSObject *splashAdObserver;
@@ -36,10 +49,16 @@ static void *nl_sqlite_adId_key = &nl_sqlite_adId_key;
 @property (nonatomic, strong) NSObject *bannerAdObserver;
 @property (nonatomic,strong) BUNativeExpressBannerView *bannerAdView;
 
-//quanping
+//chaping
 @property (nonatomic, strong) NSObject *quanpingAdObserver;
 @property (nonatomic, strong) BUNativeExpressFullscreenVideoAd *fullscreenAd;
 
+
+//xinxiliu
+
+@property (nonatomic, strong) NSObject *expressAdObserver;
+@property (nonatomic, strong) BUNativeExpressAdManager *nativeExpressAdManager;
+@property (nonatomic,strong) BUNativeExpressAdView *expressAdView;
 @end
 
 
@@ -71,6 +90,10 @@ static void *nl_sqlite_adId_key = &nl_sqlite_adId_key;
 	_bannerAdView = nil;
 	[self removeSplashADNotification];
 	_splashAdView = nil;
+
+	[self removeExpressAdNotification];
+	_expressAdView = nil;
+	_nativeExpressAdManager = nil;
 
 }
 
@@ -367,7 +390,7 @@ JS_METHOD_SYNC(closeBannerAd:(UZModuleMethodContext *)context){
 		}
 		self->_bannerAdView = nil;
 	});
-
+	[self removeBannerAdNotification];
 }
 
 -(void) removeBannerAdNotification {
@@ -660,10 +683,254 @@ JS_METHOD_SYNC(showQuanpingAd:(UZModuleMethodContext *)context){
 	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adCloseOtherController",@"quanpingAdType":@"showQuanpingAd",@"msg":@"广告关闭其他控制器",@"interactionType":@(interactionType),@"code":@1}];
 }
 #pragma mark 信息流广告
+JS_METHOD(addExpressAd:(UZModuleMethodContext *)context){
+	NSDictionary *params = context.param;
+	NSString *adId  = [params stringValueForKey:@"adId" defaultValue:nil];
+	NSDictionary *ret = [params dictValueForKey:@"ret" defaultValue:@{}];
+	float x = [ret floatValueForKey:@"x" defaultValue:0.0];
+	float y = [ret floatValueForKey:@"y" defaultValue:0.0];
+	float width = [ret floatValueForKey:@"width" defaultValue:415];
+//	float height = [ret floatValueForKey:@"height" defaultValue:50];
+    
+    float height = 0;
+	bool fixed = [params boolValueForKey:@"fixed" defaultValue:NO];
+	NSString *fixedOn = [params stringValueForKey:@"fixedOn" defaultValue:nil];
 
+	BUAdSlot *slot1 = [[BUAdSlot alloc] init];
+	slot1.ID = adId;
+	slot1.AdType = BUAdSlotAdTypeFeed;
+	NSLog(@" BUProposalSize_Feed228_150 is %ld ",(long)BUProposalSize_Feed228_150);
+	BUSize *imgSize = [BUSize sizeBy:BUProposalSize_Feed690_388];
+	slot1.imgSize = imgSize;
+	slot1.position = BUAdSlotPositionFeed;
+	// self.nativeExpressAdManager可以重用
+	if (!self.nativeExpressAdManager) {
+		self.nativeExpressAdManager = [[BUNativeExpressAdManager alloc] initWithSlot:slot1 adSize:CGSizeMake(width,height)];
+	}
+	self.nativeExpressAdManager.adSize = CGSizeMake(width,height);
+	self.nativeExpressAdManager.delegate = self;
+	[self.nativeExpressAdManager loadAdDataWithCount:1];
+
+
+//    return @{@"code":@1,@"msg":@"成功!"};
+	__weak typeof(self) _self = self;
+//    __weak typeof(context) _context=context;
+	if(!self.expressAdObserver) {
+		self.expressAdObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"loadExpressAdObserver" object:nil queue:NSOperationQueue.mainQueue usingBlock:^(NSNotification * _Nonnull note) {
+
+		                                  NSLog(@"接收到 loadExpressAdObserver 通知，%@",note.object);
+		                                  __strong typeof(_self) self = _self;
+		                                  if(!self) return;
+		                                  NSString *placeId = [note.object stringValueForKey:@"adId" defaultValue:nil];
+		                                  if([placeId isEqualToString:adId]) {
+							  NSString *expressAdType = [note.object stringValueForKey:@"expressAdType" defaultValue:nil];
+							  NSString *eventType = [note.object stringValueForKey:@"eventType" defaultValue:nil];
+
+							  NSLog(@" expressAdType %@ eventType %@",expressAdType,eventType);
+
+							  NSLog(@" expresss  ini  mammm");
+							  if([expressAdType isEqualToString:@"showExpressAd"] && [eventType isEqualToString:@"adRendered"]) {
+								  if(self->_expressAdView) {
+									  float width = self->_expressAdView.bounds.size.width;
+									  float height =  self->_expressAdView.bounds.size.height;
+									  //接收到信号 渲染成功的时候方才加载view
+									  self->_expressAdView.frame = CGRectMake(x, y,width,height);
+									  NSLog(@" log expresss  ini  mammm");
+									  [self addSubview:self->_expressAdView fixedOn:fixedOn fixed:fixed];
+									  [[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"addViewToMainView",@"expressAdType":@"showExpressAd",@"adId":adId,@"msg":@"广告加入界面成功",@"width":@(width),@"height":@(height),@"code":@1}];
+								  }else{
+									  [[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"addViewToMainView",@"expressAdType":@"showExpressAd",@"adId":adId,@"msg":@"广告加入界面失败",@"code":@0}];
+									  [self removeExpressAdView];
+								  }
+							  }
+
+							  [context callbackWithRet:note.object err:nil delete:NO];
+						  }
+					  }];
+	}
+	[context callbackWithRet:@{@"code":@1,@"bannerAdType":@"loadBannerAd",@"eventType":@"doLoad",@"msg":@"广告加载命令执行成功"} err:nil delete:NO];
+}
+JS_METHOD_SYNC(closeExpressAd:(UZModuleMethodContext *)context){
+	[self removeExpressAdView];
+	return @{@"code":@1,@"bannerAdType":@"closeExpressAd",@"eventType":@"doClose",@"msg":@"广告关闭命令执行成功"};
+}
+-(void) removeExpressAdView {
+	NSLog(@"log expressAdView will remove");
+	// 同步到主线程
+	dispatch_async(dispatch_get_main_queue(), ^{
+		if(self->_expressAdView.superview) {
+			[self->_expressAdView removeFromSuperview];
+		}
+		self->_expressAdView = nil;
+
+		self->_nativeExpressAdManager = nil;
+	});
+	[self removeExpressAdNotification];
+
+}
+
+-(void) removeExpressAdNotification {
+	//同时移除监听
+	if(self.bannerAdObserver) {
+		NSLog(@"移除通知监听");
+		[[NSNotificationCenter defaultCenter] removeObserver:self.expressAdObserver name:@"loadExpressAdObserver" object:nil];
+		self.expressAdObserver = nil;
+	}
+//[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adLoaded",@"expressAdType":@"loadExpressAd",@"msg":@"广告加载成功",@"code":@1}];
+}
 
 #pragma mark 信息流广告 delegate
+/**
+ * Sent when views successfully load ad
+ * 广告加载成功
+ */
+- (void)nativeExpressAdSuccessToLoad:(BUNativeExpressAdManager *)nativeExpressAdManager views:(NSArray<__kindof BUNativeExpressAdView *> *)views {
+	NSString *adId = nativeExpressAdManager.adslot.ID;
+	if(views.count>0) {
+		_expressAdView = (BUNativeExpressAdView *)[views firstObject];
+		_expressAdView.adId =adId;
+		_expressAdView.rootViewController = [self getKeyWindow].rootViewController;
+		[_expressAdView render];
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adLoaded",@"expressAdType":@"loadExpressAd",@"adId":adId,@"msg":@"广告加载成功",@"code":@1}];
+	}else{
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adLoadedError",@"expressAdType":@"loadExpressAd",@"adId":adId,@"msg":@"广告加载数据为空",@"code":@0}];
+		[self removeExpressAdView];
+	}
+}
 
+/**
+ * Sent when views fail to load ad
+ * 广告加载失败
+ */
+- (void)nativeExpressAdFailToLoad:(BUNativeExpressAdManager *)nativeExpressAdManager error:(NSError *_Nullable)error {
+	NSString *adId = nativeExpressAdManager.adslot.ID;
+	NSDictionary *errorInfo = @{};
+	if(error && error.userInfo) {
+		errorInfo = error.userInfo;
+	}
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adLoadNone",@"expressAdType":@"loadExpressAd",@"adId":adId,@"userInfo":errorInfo,@"msg":@"广告加载失败",@"code":@0}];
+	[self removeExpressAdView];
+}
+
+/**
+ * This method is called when rendering a nativeExpressAdView successed, and nativeExpressAdView.size.height has been updated
+ * 广告渲染成功 得到新的width和height
+ */
+- (void)nativeExpressAdViewRenderSuccess:(BUNativeExpressAdView *)nativeExpressAdView {
+
+	NSString  *adId = nativeExpressAdView.adId;
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adRendered",@"expressAdType":@"showExpressAd",@"adId":adId,@"msg":@"广告渲染成功",@"code":@1}];
+}
+
+/**
+ * This method is called when a nativeExpressAdView failed to render
+ * 广告渲染失败
+ */
+- (void)nativeExpressAdViewRenderFail:(BUNativeExpressAdView *)nativeExpressAdView error:(NSError *_Nullable)error {
+	NSString *adId = nativeExpressAdView.adId;
+	NSDictionary *errorInfo = @{};
+	if(error && error.userInfo) {
+		errorInfo = error.userInfo;
+	}
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adRenderFaild",@"expressAdType":@"showExpressAd",@"adId":adId,@"userInfo":errorInfo,@"msg":@"广告渲染失败",@"code":@0}];
+	[self removeExpressAdView];
+}
+
+/**
+ * Sent when an ad view is about to present modal content
+ *  广告即将展示
+ */
+- (void)nativeExpressAdViewWillShow:(BUNativeExpressAdView *)nativeExpressAdView {
+	NSString *adId = nativeExpressAdView.adId;
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adWillShow",@"expressAdType":@"showExpressAd",@"adId":adId,@"msg":@"广告即将展示",@"code":@1}];
+}
+
+/**
+ * Sent when an ad view is clicked
+ */
+- (void)nativeExpressAdViewDidClick:(BUNativeExpressAdView *)nativeExpressAdView {
+	NSString *adId = nativeExpressAdView.adId;
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adClickerd",@"expressAdType":@"showExpressAd",@"adId":adId,@"msg":@"广告被点击了",@"code":@1}];
+}
+
+/**
+   Sent when a playerw playback status changed.
+   @param playerState : player state after changed
+   播放状态变化
+ */
+- (void)nativeExpressAdView:(BUNativeExpressAdView *)nativeExpressAdView stateDidChanged:(BUPlayerPlayState)playerState {
+	NSString *adId = nativeExpressAdView.adId;
+//    typedef NS_ENUM(NSInteger, BUPlayerPlayState) {
+//        BUPlayerStateFailed    = 0,  失败
+//        BUPlayerStateBuffering = 1,  缓冲
+//        BUPlayerStatePlaying   = 2,  播放
+//        BUPlayerStateStopped   = 3,  停止
+//        BUPlayerStatePause     = 4,  暂停
+//        BUPlayerStateDefalt    = 5   未知
+//    };
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"videoStatusChange",@"expressAdType":@"showExpressAd",@"adId":adId,@"playerState":@(playerState),@"msg":@"广告视频播放状态变化了",@"code":@1}];
+
+}
+
+/**
+ * Sent when a player finished
+ * @param error : error of player
+ * 视频播放结束
+ */
+- (void)nativeExpressAdViewPlayerDidPlayFinish:(BUNativeExpressAdView *)nativeExpressAdView error:(NSError *)error {
+	NSString *adId = nativeExpressAdView.adId;
+	NSDictionary *errorInfo = @{};
+	if(error && error.userInfo) {
+		errorInfo = error.userInfo;
+	}
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adVideoPlayyFinished",@"expressAdType":@"showExpressAd",@"adId":adId,@"userInfo":errorInfo,@"msg":@"广告视频播放结束了",@"code":@1}];
+}
+
+/**
+ * Sent when a user clicked dislike reasons.
+ * @param filterWords : the array of reasons why the user dislikes the ad
+ */
+- (void)nativeExpressAdView:(BUNativeExpressAdView *)nativeExpressAdView dislikeWithReason:(NSArray<BUDislikeWords *> *)filterWords {
+	NSMutableArray<NSDictionary *> *words = @[].mutableCopy;
+	if(filterWords.count>0) {
+		for (BUDislikeWords *filterword in filterWords) {
+			[words addObject:@{@"name":filterword.name,@"dislikeId":filterword.dislikeID,@"isSelected":@(filterword.isSelected)}];
+		}
+	}
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adDislikCliecked",@"expressAdType":@"showExpressAd",@"adId":nativeExpressAdView.adId,@"msg":@"用户点击了dislike按钮",@"words":words,@"code":@1}];
+}
+
+/**
+ * Sent after an ad view is clicked, a ad landscape view will present modal content
+ */
+- (void)nativeExpressAdViewWillPresentScreen:(BUNativeExpressAdView *)nativeExpressAdView {
+	NSString *adId = nativeExpressAdView.adId;
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adPageWillShow",@"expressAdType":@"showExpressAd",@"adId":adId,@"msg":@"广告详情页即将展示",@"code":@1}];
+}
+
+/**
+   This method is called when another controller has been closed.
+   @param interactionType : open appstore in app or open the webpage or view video ad details page.
+ */
+- (void)nativeExpressAdViewDidCloseOtherController:(BUNativeExpressAdView *)nativeExpressAdView interactionType:(BUInteractionType)interactionType {
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adCloseOtherController",@"adId":nativeExpressAdView.adId,@"expressAdType":@"showExpressAd",@"msg":@"广告关闭了其他控制器！",@"interactionType":@(interactionType),@"code":@1}];
+}
+
+
+/**
+   This method is called when the Ad view container is forced to be removed.
+   @param nativeExpressAdView : Ad view container
+ */
+- (void)nativeExpressAdViewDidRemoved:(BUNativeExpressAdView *)nativeExpressAdView {
+	NSString *adId = nativeExpressAdView.adId;
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adClose",@"expressAdType":@"showExpressAd",@"adId":adId,@"msg":@"广告关闭了",@"code":@1}];
+    [self removeExpressAdView];
+}
 
 
 @end
