@@ -96,22 +96,7 @@ static void *n2_sqlite_adId_key = &n2_sqlite_adId_key;
 	_nativeExpressAdManager = nil;
 
 }
-- (UIViewController *)rootViewController{
-    
-    //    UIViewController *rootVC = [UIApplication sharedApplication].delegate.window.rootViewController;
-    UIViewController *rootVC = self.navigationController?:self.viewController;
 
-    UIViewController *parent = rootVC;
-    while((parent = rootVC.presentingViewController) != nil){
-        rootVC = parent;
-    }
-    
-    while ([rootVC isKindOfClass:[UINavigationController class]]) {
-        rootVC = [(UINavigationController *)rootVC topViewController];
-    }
-    
-    return rootVC;
-}
 - (UIWindow *)getKeyWindow
 {
 	if (@available(iOS 13.0, *))
@@ -196,7 +181,7 @@ JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 
 	self.startTime = CACurrentMediaTime();
 	[self.splashAdView loadAdData];
-	UIViewController *parentVC = [self rootViewController];
+	UIViewController *parentVC = [self getKeyWindow].rootViewController;
 	[parentVC.view addSubview:self.splashAdView];
 	self.splashAdView.rootViewController=parentVC;
 
@@ -240,7 +225,7 @@ JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 	NSLog(@"splashAD has loaded");
 	if (splashAd.zoomOutView) {
 		NSLog(@"splashAD zoomoutview has loaded");
-		UIViewController *parentVC = [self rootViewController];
+		UIViewController *parentVC = [self getKeyWindow].rootViewController;
 		[parentVC.view addSubview:splashAd.zoomOutView];
 		[parentVC.view bringSubviewToFront:splashAd];
 		//Add this view to your container
@@ -352,9 +337,9 @@ JS_METHOD(addBannerAd:(UZModuleMethodContext *)context){
 
 	int refreshInterval = [params intValueForKey:@"refreshInterval" defaultValue:30];
 	if(refreshInterval>=30 && refreshInterval <=120) {
-		self.bannerAdView = [[BUNativeExpressBannerView alloc] initWithSlotID:adId rootViewController:[self rootViewController] adSize:CGSizeMake(width, height) interval:refreshInterval];
+		self.bannerAdView = [[BUNativeExpressBannerView alloc] initWithSlotID:adId rootViewController:[self getKeyWindow].rootViewController adSize:CGSizeMake(width, height) interval:refreshInterval];
 	}else{
-		self.bannerAdView = [[BUNativeExpressBannerView alloc] initWithSlotID:adId rootViewController:[self rootViewController] adSize:CGSizeMake(width, height)];
+		self.bannerAdView = [[BUNativeExpressBannerView alloc] initWithSlotID:adId rootViewController:[self getKeyWindow].rootViewController adSize:CGSizeMake(width, height)];
 	}
 	if(self.bannerAdView.superview) {
 		[self.bannerAdView removeFromSuperview];
@@ -532,11 +517,10 @@ JS_METHOD(addQuanpingAd:(UZModuleMethodContext *)context){
 	NSDictionary *params = context.param;
 	NSString *adId  = [params stringValueForKey:@"adId" defaultValue:nil];
 
-	_fullscreenAd = [[BUNativeExpressFullscreenVideoAd alloc] initWithSlotID:adId];
+	self.fullscreenAd = [[BUNativeExpressFullscreenVideoAd alloc] initWithSlotID:adId];
 	// 不支持中途更改代理，中途更改代理会导致接收不到广告相关回调，如若存在中途更改代理场景，需自行处理相关逻辑，确保广告相关回调正常执行。
-	_fullscreenAd.delegate = self;
-	[_fullscreenAd loadAdData];
-
+	self.fullscreenAd.delegate = self;
+	[self.fullscreenAd loadAdData];
 
 //    return @{@"code":@1,@"msg":@"成功!"};
 	__weak typeof(self) _self = self;
@@ -553,8 +537,8 @@ JS_METHOD(addQuanpingAd:(UZModuleMethodContext *)context){
 	[context callbackWithRet:@{@"code":@1,@"quanpingAdType":@"loadQuanpingAd",@"eventType":@"doLoad",@"msg":@"广告加载命令执行成功"} err:nil delete:NO];
 }
 JS_METHOD_SYNC(showQuanpingAd:(UZModuleMethodContext *)context){
-	if (_fullscreenAd) {
-		[_fullscreenAd showAdFromRootViewController:[self getKeyWindow].rootViewController];
+	if (self.fullscreenAd) {
+		[self.fullscreenAd showAdFromRootViewController:[self getKeyWindow].rootViewController];
 		return @{@"code":@1,@"quanpingAdType":@"showQuanpingAd",@"eventType":@"doShow",@"msg":@"新插屏广告显示命令执行成功"};
 	}else{
 		return @{@"code":@0,@"quanpingAdType":@"showQuanpingAd",@"eventType":@"doShowFail",@"msg":@"没有找到新插屏广告信息 "};
@@ -567,7 +551,7 @@ JS_METHOD_SYNC(showQuanpingAd:(UZModuleMethodContext *)context){
 	if(self.quanpingAdObserver) {
 		NSLog(@"移除通知监听");
 		[[NSNotificationCenter defaultCenter] removeObserver:self.quanpingAdObserver name:@"loadQuanpingAdObserver" object:nil];
-		self.quanpingAdObserver = nil;
+		self.splashAdObserver = nil;
 	}
 	_fullscreenAd = nil;
 //[[NSNotificationCenter defaultCenter] postNotificationName:@"loadQuanpingAdObserver" object:@{@"eventType":@"adLoaded",@"quanpingAdType":@"loadQuanpingAd",@"msg":@"广告加载成功",@"code":@1}];
