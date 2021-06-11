@@ -760,11 +760,11 @@ JS_METHOD(addExpressAd:(UZModuleMethodContext *)context){
 						  }
 					  }];
 	}
-	[context callbackWithRet:@{@"code":@1,@"bannerAdType":@"loadBannerAd",@"eventType":@"doLoad",@"msg":@"广告加载命令执行成功"} err:nil delete:NO];
+	[context callbackWithRet:@{@"code":@1,@"expressAdType":@"loadExpressAd",@"eventType":@"doLoad",@"msg":@"广告加载命令执行成功"} err:nil delete:NO];
 }
 JS_METHOD_SYNC(closeExpressAd:(UZModuleMethodContext *)context){
 	[self removeExpressAdView];
-	return @{@"code":@1,@"bannerAdType":@"closeExpressAd",@"eventType":@"doClose",@"msg":@"广告关闭命令执行成功"};
+	return @{@"code":@1,@"expressAdType":@"closeExpressAd",@"eventType":@"doClose",@"msg":@"广告关闭命令执行成功"};
 }
 -(void) removeExpressAdView {
 	NSLog(@"log expressAdView will remove");
@@ -820,7 +820,7 @@ JS_METHOD_SYNC(closeExpressAd:(UZModuleMethodContext *)context){
 	if(error && error.userInfo) {
 		errorInfo = error.userInfo;
 	}
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adLoadNone",@"expressAdType":@"loadExpressAd",@"adId":adId,@"userInfo":errorInfo,@"msg":@"广告加载失败",@"code":@0}];
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adLoadFail",@"expressAdType":@"loadExpressAd",@"adId":adId,@"userInfo":errorInfo,@"msg":@"广告加载失败",@"code":@0}];
 	[self removeExpressAdView];
 }
 
@@ -845,7 +845,7 @@ JS_METHOD_SYNC(closeExpressAd:(UZModuleMethodContext *)context){
 	if(error && error.userInfo) {
 		errorInfo = error.userInfo;
 	}
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adRenderFaild",@"expressAdType":@"showExpressAd",@"adId":adId,@"userInfo":errorInfo,@"msg":@"广告渲染失败",@"code":@0}];
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adRenderFail",@"expressAdType":@"showExpressAd",@"adId":adId,@"userInfo":errorInfo,@"msg":@"广告渲染失败",@"code":@0}];
 	[self removeExpressAdView];
 }
 
@@ -865,7 +865,7 @@ JS_METHOD_SYNC(closeExpressAd:(UZModuleMethodContext *)context){
 - (void)nativeExpressAdViewDidClick:(BUNativeExpressAdView *)nativeExpressAdView {
 	NSString *adId = nativeExpressAdView.adId;
 
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adClickerd",@"expressAdType":@"showExpressAd",@"adId":adId,@"msg":@"广告被点击了",@"code":@1}];
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"adClicked",@"expressAdType":@"showExpressAd",@"adId":adId,@"msg":@"广告被点击了",@"code":@1}];
 }
 
 /**
