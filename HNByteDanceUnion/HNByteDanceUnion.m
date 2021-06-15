@@ -9,7 +9,8 @@
 #import "UZEngine/NSDictionaryUtils.h"
 #import <BUAdSDK/BUAdSDK.h>
 #import <objc/runtime.h>
-
+#import <AppTrackingTransparency/AppTrackingTransparency.h>
+#import <AdSupport/AdSupport.h>
 
 @interface BUNativeExpressBannerView (HNByteDanceUnion)
 @property (nonatomic, assign) NSString *adId;
@@ -134,22 +135,18 @@ JS_METHOD(init:(UZModuleMethodContext *)context){
 		[context callbackWithRet:@{@"code":@0,@"msg":@"广告appId有误！"} err:nil delete:YES];
 		return;
 	}
-	NSInteger territory = [[NSUserDefaults standardUserDefaults]integerForKey:@"territory"];
-	BOOL isNoCN = (territory>0&&territory!=BUAdSDKTerritory_CN);
-
 	BUAdSDKConfiguration *configuration = [BUAdSDKConfiguration configuration];
-	configuration.territory = isNoCN?BUAdSDKTerritory_NO_CN:BUAdSDKTerritory_CN;
+	configuration.territory = BUAdSDKTerritory_CN;
 	configuration.GDPR = @(0);
 	configuration.coppa = @(0);
 	configuration.CCPA = @(1);
 	configuration.appID = appId;
 //    configuration.logLevel = BUAdSDKLogLevelDebug;
-	[BUAdSDKManager startWithSyncCompletionHandler:^(BOOL success, NSError *error) {
+    [BUAdSDKManager startWithAsyncCompletionHandler:^(BOOL success, NSError *error) {
 
-	         if (success) {
+        if (success) {
 			 //shezhi keyi
 			 [context callbackWithRet:@{@"code":@1,@"msg":@"初始化成功！",@"version":[BUAdSDKManager SDKVersion]} err:nil delete:NO];
-			 ;
 		 }else{
 			 //shezhi bukeyi
 			 NSDictionary *errorInfo  = @{};
@@ -161,6 +158,25 @@ JS_METHOD(init:(UZModuleMethodContext *)context){
 	 }];
 
 }
+
+#pragma mark - 获取 IDFA
+JS_METHOD(requestATT:(UZModuleMethodContext *)context){
+    if (@available(iOS 14, *)) {
+        [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+//            ATTrackingManagerAuthorizationStatusNotDetermined = 0,
+//            ATTrackingManagerAuthorizationStatusRestricted,
+//            ATTrackingManagerAuthorizationStatusDenied,
+//            ATTrackingManagerAuthorizationStatusAuthorized
+           
+            [context callbackWithRet:@{@"code":@1,@"status":@(status),@"msg":@"授权回调成功，请检查status",@"IDFA": [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString]} err:nil delete:YES];
+        }];
+    } else {
+        // Fallback on earlier versions
+        [context callbackWithRet:@{@"code":@2,@"msg":@"系统低于iOS14.0 暂时不支持跟踪设置"} err:nil delete:YES];
+    }
+    
+}
+
 #pragma mark - SplashAd 开屏广告展示
 JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 	NSDictionary *params = context.param;
@@ -180,12 +196,15 @@ JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 	self.splashAdView.tolerateTimeout = 3;
 	//不支持中途更改代理，中途更改代理会导致接收不到广告相关回调，如若存在中途更改代理场景，需自行处理相关逻辑，确保广告相关回调正常执行。
 	self.splashAdView.delegate = self;
-
-	self.startTime = CACurrentMediaTime();
-	[self.splashAdView loadAdData];
-	UIViewController *parentVC =  [self rootViewController];
-	[parentVC.view addSubview:self.splashAdView];
-	self.splashAdView.rootViewController=parentVC;
+    
+    self.startTime = CACurrentMediaTime();
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.splashAdView loadAdData];
+        UIViewController *parentVC =  [self rootViewController];
+        [parentVC.view addSubview:self.splashAdView];
+        self.splashAdView.rootViewController=parentVC;
+    });
+	
 
 //    return @{@"code":@1,@"msg":@"成功!"};
 	__weak typeof(self) _self = self;
@@ -227,13 +246,16 @@ JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 	NSLog(@"splashAD has loaded");
 	if (splashAd.zoomOutView) {
 		NSLog(@"splashAD zoomoutview has loaded");
-		UIViewController *parentVC = [self rootViewController];
-		[parentVC.view addSubview:splashAd.zoomOutView];
-		[parentVC.view bringSubviewToFront:splashAd];
-		//Add this view to your container
-		[parentVC.view insertSubview:splashAd.zoomOutView belowSubview:splashAd];
-		splashAd.zoomOutView.rootViewController = parentVC;
-		splashAd.zoomOutView.delegate = self;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UIViewController *parentVC = [self rootViewController];
+            [parentVC.view addSubview:splashAd.zoomOutView];
+            [parentVC.view bringSubviewToFront:splashAd];
+            //Add this view to your container
+            [parentVC.view insertSubview:splashAd.zoomOutView belowSubview:splashAd];
+            splashAd.zoomOutView.rootViewController = parentVC;
+            splashAd.zoomOutView.delegate = self;
+        });
+		
 	}
 
 	[[NSNotificationCenter defaultCenter] postNotificationName:@"loadSplashAdObserver" object:@{@"code":@1,@"splashAdType":@"loadSplashAd",@"eventType":@"adLoaded",@"msg":@"开屏广告素材加载成功！"}];
@@ -369,8 +391,10 @@ JS_METHOD(addBannerAd:(UZModuleMethodContext *)context){
 							 NSLog(@" bannerAdType %@ eventType %@",bannerAdType,eventType);
 
 							 if([bannerAdType isEqualToString:@"loadBannerAd"] && [eventType isEqualToString:@"adRendered"]) {
-								 //接收到信号 渲染成功的时候方才加载view
-								 [self addSubview:self.bannerAdView fixedOn:fixedOn fixed:fixed];
+                                 dispatch_async(dispatch_get_main_queue(), ^{
+                                     //接收到信号 渲染成功的时候方才加载view
+                                     [self addSubview:self.bannerAdView fixedOn:fixedOn fixed:fixed];
+                                 });
 								 [[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"addViewToMainView",@"bannerAdType":@"loadBannerAd",@"adId":adId,@"msg":@"广告加入界面成功",@"height":@(self.bannerAdView.bounds.size.height),@"width":@(self.bannerAdView.bounds.size.width),@"code":@1}];
 							 }
 
@@ -544,7 +568,10 @@ JS_METHOD(addQuanpingAd:(UZModuleMethodContext *)context){
 }
 JS_METHOD_SYNC(showQuanpingAd:(UZModuleMethodContext *)context){
 	if (self.fullScreenAd) {
-		[self.fullScreenAd showAdFromRootViewController:self.viewController];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.fullScreenAd showAdFromRootViewController:self.viewController];
+        });
+		
 //        [self.fullScreenAd showAdFromRootViewController:self.viewController ritSceneDescribe:nil];
 		return @{@"code":@1,@"quanpingAdType":@"showQuanpingAd",@"eventType":@"doShow",@"msg":@"新插屏广告显示命令执行成功"};
 	}else{
@@ -745,10 +772,12 @@ JS_METHOD(addExpressAd:(UZModuleMethodContext *)context){
 								  if(self->_expressAdView) {
 									  float width = self->_expressAdView.bounds.size.width;
 									  float height =  self->_expressAdView.bounds.size.height;
-									  //接收到信号 渲染成功的时候方才加载view
-									  self->_expressAdView.frame = CGRectMake(x, y,width,height);
-									  NSLog(@" log expresss  ini  mammm");
-									  [self addSubview:self->_expressAdView fixedOn:fixedOn fixed:fixed];
+                                      dispatch_async(dispatch_get_main_queue(), ^{
+                                          //接收到信号 渲染成功的时候方才加载view
+                                          self->_expressAdView.frame = CGRectMake(x, y,width,height);
+                                          NSLog(@" log expresss  ini  mammm");
+                                          [self addSubview:self->_expressAdView fixedOn:fixedOn fixed:fixed];
+                                      });
 									  [[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"addViewToMainView",@"expressAdType":@"showExpressAd",@"adId":adId,@"msg":@"广告加入界面成功",@"width":@(width),@"height":@(height),@"code":@1}];
 								  }else{
 									  [[NSNotificationCenter defaultCenter] postNotificationName:@"loadExpressAdObserver" object:@{@"eventType":@"addViewToMainView",@"expressAdType":@"showExpressAd",@"adId":adId,@"msg":@"广告加入界面失败",@"code":@0}];
