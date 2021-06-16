@@ -98,25 +98,14 @@ static void *n2_sqlite_adId_key = &n2_sqlite_adId_key;
 
 }
 -(UIViewController *) rootViewController{
-    return self.navigationController?:self.viewController;
+    UIWindow *window = [self getKeyWindow];
+    return window?window.rootViewController:(self.viewController.navigationController?:self.viewController);
 }
 - (UIWindow *)getKeyWindow
 {
 	if (@available(iOS 13.0, *))
 	{
-		for (UIWindowScene* windowScene in [UIApplication sharedApplication].connectedScenes) {
-			if (windowScene.activationState == UISceneActivationStateForegroundActive)
-			{
-				for (UIWindow *window in windowScene.windows)
-				{
-					if (window.isKeyWindow)
-					{
-						return window;
-						break;
-					}
-				}
-			}
-		}
+        return  [UIApplication sharedApplication].windows[0];
 	}
 	else
 	{
@@ -162,14 +151,16 @@ JS_METHOD(init:(UZModuleMethodContext *)context){
 #pragma mark - 获取 IDFA
 JS_METHOD(requestATT:(UZModuleMethodContext *)context){
     if (@available(iOS 14, *)) {
-        [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
-//            ATTrackingManagerAuthorizationStatusNotDetermined = 0,
-//            ATTrackingManagerAuthorizationStatusRestricted,
-//            ATTrackingManagerAuthorizationStatusDenied,
-//            ATTrackingManagerAuthorizationStatusAuthorized
-           
-            [context callbackWithRet:@{@"code":@1,@"status":@(status),@"msg":@"授权回调成功，请检查status",@"IDFA": [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString]} err:nil delete:YES];
-        }];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+    //            ATTrackingManagerAuthorizationStatusNotDetermined = 0,
+    //            ATTrackingManagerAuthorizationStatusRestricted,
+    //            ATTrackingManagerAuthorizationStatusDenied,
+    //            ATTrackingManagerAuthorizationStatusAuthorized
+               
+                [context callbackWithRet:@{@"code":@1,@"status":@(status),@"msg":@"授权回调成功，请检查status",@"IDFA": [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString]} err:nil delete:YES];
+            }];
+        });
     } else {
         // Fallback on earlier versions
         [context callbackWithRet:@{@"code":@2,@"msg":@"系统低于iOS14.0 暂时不支持跟踪设置"} err:nil delete:YES];
@@ -190,36 +181,38 @@ JS_METHOD(addSplashAd:(UZModuleMethodContext *)context){
 //	NSString *fixedOn = [params stringValueForKey:@"fixedOn" defaultValue:nil];
 //	bool fixed = [params boolValueForKey:@"fixed" defaultValue:NO];
 
-	CGRect frame = CGRectMake([x floatValue], [y floatValue], [width floatValue], [height floatValue]);
-	self.splashAdView = [[BUSplashAdView alloc] initWithSlotID:adId frame:frame];
-	// tolerateTimeout = CGFLOAT_MAX , The conversion time to milliseconds will be equal to 0
-	self.splashAdView.tolerateTimeout = 3;
-	//不支持中途更改代理，中途更改代理会导致接收不到广告相关回调，如若存在中途更改代理场景，需自行处理相关逻辑，确保广告相关回调正常执行。
-	self.splashAdView.delegate = self;
-    
-    self.startTime = CACurrentMediaTime();
+
     dispatch_async(dispatch_get_main_queue(), ^{
+        CGRect frame = CGRectMake([x floatValue], [y floatValue], [width floatValue], [height floatValue]);
+        self.splashAdView = [[BUSplashAdView alloc] initWithSlotID:adId frame:frame];
+        // tolerateTimeout = CGFLOAT_MAX , The conversion time to milliseconds will be equal to 0
+        self.splashAdView.tolerateTimeout = 3;
+        //不支持中途更改代理，中途更改代理会导致接收不到广告相关回调，如若存在中途更改代理场景，需自行处理相关逻辑，确保广告相关回调正常执行。
+        self.splashAdView.delegate = self;
+        
+        self.startTime = CACurrentMediaTime();
         [self.splashAdView loadAdData];
-        UIViewController *parentVC =  [self rootViewController];
+        UIWindow *window = [UIApplication sharedApplication].windows[0];
+        UIViewController *parentVC = window.rootViewController;
         [parentVC.view addSubview:self.splashAdView];
         self.splashAdView.rootViewController=parentVC;
-    });
-	
-
-//    return @{@"code":@1,@"msg":@"成功!"};
-	__weak typeof(self) _self = self;
-//    __weak typeof(context) _context=context;
-	if(!self.splashAdObserver) {
-		self.splashAdObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"loadSplashAdObserver" object:nil queue:NSOperationQueue.mainQueue usingBlock:^(NSNotification * _Nonnull note) {
-
-		                                 NSLog(@"接收到loadSplashAdObserver通知，%@",note.object);
-		                                 __strong typeof(_self) self = _self;
-		                                 if(!self) return;
-//        __strong typeof(_context) context = _context;
-		                                 [context callbackWithRet:note.object err:nil delete:NO];
-					 }];
-	}
+        
 	[context callbackWithRet:@{@"code":@1,@"splashAdType":@"loadSplashAd",@"eventType":@"doLoad",@"msg":@"广告加载命令执行成功"} err:nil delete:NO];
+        
+    });
+    //    return @{@"code":@1,@"msg":@"成功!"};
+        __weak typeof(self) _self = self;
+    //    __weak typeof(context) _context=context;
+        if(!self.splashAdObserver) {
+            self.splashAdObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"loadSplashAdObserver" object:nil queue:NSOperationQueue.mainQueue usingBlock:^(NSNotification * _Nonnull note) {
+
+                                             NSLog(@"接收到loadSplashAdObserver通知，%@",note.object);
+                                             __strong typeof(_self) self = _self;
+                                             if(!self) return;
+    //        __strong typeof(_context) context = _context;
+                                             [context callbackWithRet:note.object err:nil delete:NO];
+                         }];
+        }
 }
 
 - (void)removeSplashAdView {
@@ -394,8 +387,9 @@ JS_METHOD(addBannerAd:(UZModuleMethodContext *)context){
                                  dispatch_async(dispatch_get_main_queue(), ^{
                                      //接收到信号 渲染成功的时候方才加载view
                                      [self addSubview:self.bannerAdView fixedOn:fixedOn fixed:fixed];
+                                     
+                                     [[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"addViewToMainView",@"bannerAdType":@"loadBannerAd",@"adId":adId,@"msg":@"广告加入界面成功",@"height":@(self.bannerAdView.bounds.size.height),@"width":@(self.bannerAdView.bounds.size.width),@"code":@1}];
                                  });
-								 [[NSNotificationCenter defaultCenter] postNotificationName:@"loadBannerAdObserver" object:@{@"eventType":@"addViewToMainView",@"bannerAdType":@"loadBannerAd",@"adId":adId,@"msg":@"广告加入界面成功",@"height":@(self.bannerAdView.bounds.size.height),@"width":@(self.bannerAdView.bounds.size.width),@"code":@1}];
 							 }
 
 							 [context callbackWithRet:note.object err:nil delete:NO];
